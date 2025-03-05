@@ -1,20 +1,40 @@
 import { ProfileCard } from "../components/ProfileCard";
 import db from "@/app/db";
-function getBalance(){
-  const session = await getServerSession();
-  db.solWallet.findFirst({
-    where:{
-      userId:session.data?.user?.id
+import { authConfig } from "../lib/auth";
+import {getServerSession} from "next-auth"
+
+
+async function getUserWallet() {
+  const session = await getServerSession(authConfig);
+  const userWallet = await db.solWallet.findFirst({
+    where :{
+      userId : session?.user?.uid
+    },
+    select :{
+      publicKey:true
     }
   })
+
+  if(!userWallet){
+    return {
+       error:"No solana wallet found associated to the user"
+      }
+  }
+return {error:null,userWallet}
 }
 
-// app/dashboard/page.tsx
-export default function Dashboard() {
-return (
-  <div>
-    <ProfileCard/>
+export default async function DashBoard(){
+  const userWallet = await getUserWallet();
+  if(userWallet.error || !userWallet.userWallet?.publicKey){
+    return <>
+    No solana wallet found
+    </>
+  }
+
+  return <div>
+    <ProfileCard publicKey ={userWallet.userWallet?.publicKey}>
+
+    </ProfileCard>
   </div>
-)
 }
   
