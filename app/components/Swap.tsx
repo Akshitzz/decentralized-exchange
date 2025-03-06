@@ -1,13 +1,13 @@
 "use client"
-import { ReactNode, useEffect, useState } from "react"
+import {ReactNode, useEffect, useState } from "react"
 import { SUPPORTED_TOKENS, TokenDetails } from "../lib/tokens"
-import { TokenWithbalance } from "../api/hooks/useTokens";
-import { PrimaryButton } from "./Button";
+import { TokenWithbalance } from "../api/hooks/useToken";
+import { PrimaryButton } from "./button";
 import axios from "axios";
 
  
-export function Swap({publicKey , tokenBalances}:{
-    publicKey: string,
+export function Swap({  tokenBalances}:{
+    publicKey?: string,
     tokenBalances : {
         tokenBalances :number,
         tokens : TokenWithbalance[]
@@ -52,12 +52,11 @@ export function Swap({publicKey , tokenBalances}:{
         onSelect={(asset)=>{
             setBaseAssset(asset)
         }}
-        selectedToken={baseasset}
+        selectedToken={baseAsset}
         title = {"You pay :"}
         topBorderEnabled ={true}
         bottomBorderEnabled = {false}
-        subtitle={
-            <div className="text-slate-500 pt-1 pl-1 flex text-sm">
+        subtitle={<div className="text-slate-500 pt-1 pl-1 flex text-sm">
                     <div className="font-normal pr-1">
                         Current Balance:
                     </div>
@@ -66,10 +65,8 @@ export function Swap({publicKey , tokenBalances}:{
                         {tokenBalances?.tokens.find(x=> x.name === baseAsset.name)?.balance}
                         {baseAsset.name}
                     </div>
-            </div>
-        }
-        
-        />
+            </div>}
+ />
         
         <div className="flex justify-between">
             <div onClick={()=>{
@@ -79,20 +76,43 @@ export function Swap({publicKey , tokenBalances}:{
                  }}
                   className=" cursor-pointer rounded-full w-10 h-10 border absolute mt-[-20px] bg-white flex justify-center pt-2"
                  >
-                        <SwapIcon/>
+                    <SwapIcon/>
             </div>
         </div>
+
+
+        <SwapInputRow inputLoading={fetchingQuote} inputDisabled={true} amount={QuoteAmount} onSelect={(asset)=>{setQuoteAsset(asset)}} 
+            selectedToken={quoteAsset} title={"You recieve"} topBorderEnabled={false}  bottomBorderEnabled={true}
+            />
+            <div className="flex jutify-end pt-4">
+                    <PrimaryButton onClick={async ()=>{
+                        try {
+                            const res = await axios.post("/api/swap",{
+                                quoteResponse
+                            })
+                            if(res.data.TxnId){
+                                alert("Swap done !")
+                            }
+                        }
+                        catch(e){
+                            console.log(e)
+                            alert("Error while sending a txn")
+                        }
+
+
+                    }}>Swap</PrimaryButton>
+            </div>
         
     </div>
 }
 
 
 
-function SwapInputRow({onSelect,amount,onAmountCharge, selectedToken, title , subtitle, topBorderEnabled, bottomBorderEnabled, inputDisabled,inputLoading}:{
+function SwapInputRow({onSelect,amount,onAmountChange, selectedToken, title , subtitle, topBorderEnabled, bottomBorderEnabled, inputDisabled,inputLoading}:{
 onSelect :(asset :TokenDetails)=>void;
 selectedToken :TokenDetails,
 title :string;
-subtitle?: string;
+subtitle?: ReactNode;
 topBorderEnabled :boolean;
 bottomBorderEnabled :boolean;
 amount?:string;
@@ -114,7 +134,9 @@ inputLoading?: boolean;
             {subtitle}
         </div>
         <div>
-            <input disabled={inputDisabled} onChange={(e)=>{onAmountCharge?.(e.target.value)} }placeholder="0" type="text " className="bg-slate-50 p06 outline-none text-4xl" dir="rtl"  value= {inputLoading?" Loading" :amount}></input>
+        <input disabled={inputDisabled} onChange={(e) => {
+                onAmountChange?.(e.target.value);
+            }} placeholder="0" type="text" className="bg-slate-50 p-6 outline-none text-4xl" dir="rtl" value={inputLoading ? "Loading" : amount}></input>
         </div>
    </div>
 function AssetSelector({selectedToken,onSelect}:{
@@ -137,10 +159,11 @@ function AssetSelector({selectedToken,onSelect}:{
     </div>
 }
 
+
+}
+
 function SwapIcon(){
     return <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" className="size-6">
     <path stroke-linecap="round" stroke-linejoin="round" d="M3 7.5 7.5 3m0 0L12 7.5M7.5 3v13.5m13.5 0L16.5 21m0 0L12 16.5m4.5 4.5V7.5" />
     </svg>
-}
-
 }
