@@ -1,0 +1,43 @@
+/* eslint-disable jsx-a11y/alt-text */
+/* eslint-disable @next/next/no-img-element */
+import { TokenWithbalance } from "../api/hooks/useToken";
+
+export function TokenList({tokens}:{
+    tokens:TokenWithbalance[]
+}){
+    return <div>
+        {tokens.map(t=><TokenRaw key= {t.name} token={t}/>)}
+    </div>
+    
+}
+
+
+
+function TokenRaw({token}:{
+    token:TokenWithbalance
+}){
+    return <div className="flex justify-between">
+        <div className="flex">
+          <div>
+            
+          <img src={token.image} className="h-10 w-10 rounded-full mr-2" />
+        </div>
+        <div>
+            <div className="font-bold">
+                {token.name}
+            </div>
+            <div className="font-slim">
+                1 {token.name} = ~${token.price}
+                </div>
+            </div>
+        </div>
+        <div>
+            <div className="font-bold flex justify-end">
+                {token.usdBalance}
+            </div>
+            <div className="font-slim flex justify-end">
+                {token.balance}
+            </div>
+        </div>
+    </div>
+}

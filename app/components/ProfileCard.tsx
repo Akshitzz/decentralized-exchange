@@ -2,7 +2,7 @@
 
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import { PrimaryButton, TabButton } from "./Button";
+import { PrimaryButton, TabButton } from "./button";
 import { useEffect, useState } from "react";
 import { TokenWithbalance, useTokens } from "../api/hooks/useToken";
 import { TokenList } from "./TokenList";
